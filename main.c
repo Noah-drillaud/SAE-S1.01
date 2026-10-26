@@ -1,41 +1,121 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
-/** saisie utilisateur */
+#define MAX_PARTICIPANTS 100
+#define MAX_CONCOURS 20
+#define TAILLE_MAX 31 // 30 caractères +1 pour marquer la fin de la chaîne
 
-int lire_saisie(char *buffer, size_t taille)
+// Définition des types de commandes
+typedef enum
 {
-    if (fgets(buffer, taille, stdin) == NULL)
-    {
-        return 0; // Erreur de lecture
-    }
-    buffer[strcspn(buffer, "\n")] = '\0'; // Supprimer le saut de ligne
-    return 1;                             // Succès
+    CMD_EXIT,
+    CMD_INSCRIRE,
+    CMD_PARTICIPANTS,
+    CMD_CREER,
+    CMD_CONCOURS,
+    CMD_INCONNU,
+} TypeCommande;
+
+// Fonction pour identifier la commande entrée par l'utilisateur
+TypeCommande identifier_commande(const char *commande)
+{
+    if (strcmp(commande, "EXIT") == 0)
+        return CMD_EXIT;
+    else if (strcmp(commande, "INSCRIRE") == 0)
+        return CMD_INSCRIRE;
+    else if (strcmp(commande, "PARTICIPANTS") == 0)
+        return CMD_PARTICIPANTS;
+    else if (strcmp(commande, "CREER") == 0)
+        return CMD_CREER;
+    else if (strcmp(commande, "CONCOURS") == 0)
+        return CMD_CONCOURS;
+    else
+        return CMD_INCONNU;
 }
 
-int saisire_commande(char *buffer, size_t taille)
+// Structure pour représenter un participant
+typedef struct
 {
-    while (1)
+    char nom[100];
+    char prenom[100];
+    int nb_concours_actifs;
+} Participant;
+
+// Structure pour représenter un concours
+typedef struct
+{
+    char nom[TAILLE_MAX];
+    int nb_participants_actifs;
+} Concours;
+
+// Tableau principeaux
+Participant les_participants[MAX_PARTICIPANTS];
+int nb_participants = 0; // compteur du nombre de participants
+
+Concours les_concours[MAX_CONCOURS];
+int nb_concours = 0; // compteur du nombre de concours
+
+void inscrire_participant(const char *prenom, const char *nom)
+{
+    // Vérifier si le participant existe déjà
+    for (int i = 0; i < nb_participants; i++)
     {
-        printf("Entrez une commande : ");
-        if (!lire_saisie(buffer, taille))
+        if (strcmp(les_participants[i].prenom, prenom) == 0 &&
+            strcmp(les_participants[i].nom, nom) == 0)
         {
-            return 0; // Erreur de lecture
-        }
-        if (strlen(buffer) > 0)
-        {
-            return 1; // Succès
+            printf("Nom incorrect.\n");
+            return;
         }
     }
+
+    // Vérifier si le nombre maximum de participants est atteint
+    if (nb_participants >= MAX_PARTICIPANTS)
+    {
+        printf("Nombre maximum de participants atteint.\n");
+        return;
+    }
+    
+    // Ajouter le participant
+    strcpy(les_participants[nb_participants].prenom, prenom);
+    strcpy(les_participants[nb_participants].nom, nom);
+    les_participants[nb_participants].nb_concours_actifs = 0;
+
+    nb_participants++;
+
+    printf("Isncription enregistree (%d)\n", nb_participants);
 }
 
 int main()
 {
-    char saisie[100];
-    
-    while (saisire_commande(saisie, sizeof(saisie)))
+    char commande[50];
+
+    // boucle principale du programme
+    while (1)
     {
-        printf("Vous avez saisi : %s\n", saisie);
+        if (scanf("%s", commande) != 1)
+        {
+            break; // Sortir de la boucle si la lecture échoue
+        }
+
+        switch (identifier_commande(commande))
+        {
+        case CMD_EXIT:
+            printf("Exiting the program.\n");
+            return 0;
+        case CMD_INSCRIRE:
+        {
+            char nom[TAILLE_MAX], prenom[TAILLE_MAX];
+            scanf("%s %s", prenom, nom);
+            inscrire_participant(prenom, nom);
+            break;
+        }
+        // Ajouter les cas pour les autres commandes
+        default:
+            printf("Command not recognized.\n");
+            break;
+        }
     }
+
     return 0;
 }
