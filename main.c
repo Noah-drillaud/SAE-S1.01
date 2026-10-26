@@ -56,6 +56,7 @@ int nb_participants = 0; // compteur du nombre de participants
 Concours les_concours[MAX_CONCOURS];
 int nb_concours = 0; // compteur du nombre de concours
 
+// Fonction pour inscrire un participant
 void inscrire_participant(const char *prenom, const char *nom)
 {
     // Vérifier si le participant existe déjà
@@ -86,6 +87,24 @@ void inscrire_participant(const char *prenom, const char *nom)
     printf("Isncription enregistree (%d)\n", nb_participants);
 }
 
+void afficher_participants()
+{
+    if (nb_participants == 0)
+    {
+        printf("Aucun participant inscrit.\n");
+        return;
+    }
+    for (int i = 0; i < nb_participants; i++)
+    {
+        printf("(%d) %s %s %d concours\n",
+            i + 1,
+            les_participants[i].prenom,
+            les_participants[i].nom,
+            les_participants[i].nb_concours_actifs);
+    }
+}
+
+
 int main()
 {
     char commande[50];
@@ -110,6 +129,10 @@ int main()
             inscrire_participant(prenom, nom);
             break;
         }
+        case CMD_PARTICIPANTS:
+            afficher_participants();
+            break;
+            
         // Ajouter les cas pour les autres commandes
         default:
             printf("Command not recognized.\n");

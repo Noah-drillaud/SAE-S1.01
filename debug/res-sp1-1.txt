@@ -1,0 +1,28 @@
+Command not recognized.
+Command not recognized.
+Isncription enregistree (1)
+Isncription enregistree (2)
+Isncription enregistree (3)
+(1) Ray Ray 0 concours
+(2) Ray Rob 0 concours
+(3) Ray Rut 0 concours
+Command not recognized.
+Command not recognized.
+Nom incorrect.
+Isncription enregistree (4)
+(1) Ray Ray 0 concours
+(2) Ray Rob 0 concours
+(3) Ray Rut 0 concours
+(4) Ray Yva 0 concours
+Nom incorrect.
+Nom incorrect.
+Nom incorrect.
+Nom incorrect.
+Nom incorrect.
+Command not recognized.
+(1) Ray Ray 0 concours
+(2) Ray Rob 0 concours
+(3) Ray Rut 0 concours
+(4) Ray Yva 0 concours
+Command not recognized.
+Exiting the program.
