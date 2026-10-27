@@ -65,7 +65,7 @@ void inscrire_participant(const char *prenom, const char *nom)
         if (strcmp(les_participants[i].prenom, prenom) == 0 &&
             strcmp(les_participants[i].nom, nom) == 0)
         {
-            printf("Nom incorrect.\n");
+            printf("Nom incorrect\n");
             return;
         }
     }
@@ -76,7 +76,7 @@ void inscrire_participant(const char *prenom, const char *nom)
         printf("Nombre maximum de participants atteint.\n");
         return;
     }
-    
+
     // Ajouter le participant
     strcpy(les_participants[nb_participants].prenom, prenom);
     strcpy(les_participants[nb_participants].nom, nom);
@@ -84,27 +84,70 @@ void inscrire_participant(const char *prenom, const char *nom)
 
     nb_participants++;
 
-    printf("Isncription enregistree (%d)\n", nb_participants);
+    printf("Inscription enregistree (%d)\n", nb_participants);
 }
 
+// Fonction pour afficher la liste des participants
 void afficher_participants()
 {
     if (nb_participants == 0)
     {
-        printf("Aucun participant inscrit.\n");
+        printf("Aucun participant inscrit\n");
         return;
     }
     for (int i = 0; i < nb_participants; i++)
     {
-        printf("(%d) %s %s %d concours\n",
-            i + 1,
-            les_participants[i].prenom,
-            les_participants[i].nom,
-            les_participants[i].nb_concours_actifs);
+        printf("(%d) %s %s : %d concours\n",
+               i + 1,
+               les_participants[i].prenom,
+               les_participants[i].nom,
+               les_participants[i].nb_concours_actifs);
     }
 }
 
+// Fonction pour créer un concours
+void creer_concours(const char *nom_concours)
+{
+    // Vérifier si le concours existe déjà
+    for (int i = 0; i < nb_concours; i++)
+    {
+        if (strcmp(les_concours[i].nom, nom_concours) == 0)
+        {
+            printf("Nom incorrect\n");
+            return;
+        }
+    }
 
+    // Vérifier si le nombre maximum de concours est atteint
+    if (nb_concours >= MAX_CONCOURS)
+    {
+        printf("Nombre maximum de concours atteint.\n");
+        return;
+    }
+
+    // Ajouter le concours
+    strcpy(les_concours[nb_concours].nom, nom_concours);
+    les_concours[nb_concours].nb_participants_actifs = 0;
+
+    nb_concours++;
+
+    printf("Creation enregistree (%d)\n", nb_concours);
+}
+
+// Fonction pour afficher la liste des concours
+void afficher_concours()
+{
+    if (nb_concours == 0)
+    {
+        printf("Aucun concours cree\n");
+        return;
+    }
+    for (int i = 0; i < nb_concours; i++)
+    {
+        printf("(%d) %s : %d participant\n",
+               i + 1, les_concours[i].nom, les_concours[i].nb_participants_actifs);
+    }
+}
 int main()
 {
     char commande[50];
@@ -120,7 +163,6 @@ int main()
         switch (identifier_commande(commande))
         {
         case CMD_EXIT:
-            printf("Exiting the program.\n");
             return 0;
         case CMD_INSCRIRE:
         {
@@ -132,7 +174,16 @@ int main()
         case CMD_PARTICIPANTS:
             afficher_participants();
             break;
-            
+        case CMD_CREER:
+        {
+            char nom_concours[TAILLE_MAX];
+            scanf("%s", nom_concours);
+            creer_concours(nom_concours);
+            break;
+        }
+        case CMD_CONCOURS:
+            afficher_concours();
+            break;
         // Ajouter les cas pour les autres commandes
         default:
             printf("Command not recognized.\n");
