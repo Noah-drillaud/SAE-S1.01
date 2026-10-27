@@ -14,6 +14,8 @@ typedef enum
     CMD_PARTICIPANTS,
     CMD_CREER,
     CMD_CONCOURS,
+    CMD_GAIN,
+    CMD_SCORES,
     CMD_INCONNU,
 } TypeCommande;
 
@@ -30,6 +32,10 @@ TypeCommande identifier_commande(const char *commande)
         return CMD_CREER;
     else if (strcmp(commande, "CONCOURS") == 0)
         return CMD_CONCOURS;
+    else if (strcmp(commande, "GAIN") == 0)
+        return CMD_GAIN;
+    else if (strcmp(commande, "SCORES") == 0)
+        return CMD_SCORES;
     else
         return CMD_INCONNU;
 }
@@ -40,6 +46,7 @@ typedef struct
     char nom[100];
     char prenom[100];
     int nb_concours_actifs;
+    int scores[MAX_CONCOURS];
 } Participant;
 
 // Structure pour représenter un concours
@@ -144,10 +151,102 @@ void afficher_concours()
     }
     for (int i = 0; i < nb_concours; i++)
     {
-        printf("(%d) %s : %d participant\n",
-               i + 1, les_concours[i].nom, les_concours[i].nb_participants_actifs);
+        // Gestion du singulier/pluriel pour le mot "participant"
+        if (les_concours[i].nb_participants_actifs <= 1)
+        {
+            printf("(%d) %s : %d participant\n",
+                   i + 1, les_concours[i].nom, les_concours[i].nb_participants_actifs);
+        }
+        else
+        {
+            printf("(%d) %s : %d participants\n",
+                   i + 1, les_concours[i].nom, les_concours[i].nb_participants_actifs);
+        }
     }
 }
+
+// Fonction pour enregistrer le gain d'un participant dans un concours
+void enregistrer_gain(int id_participant, int id_concours, int points)
+{
+    // conversion des identifiants en indices de tableau (-1)
+    int indice_participant = id_participant - 1;
+    int indice_concours = id_concours - 1;
+
+    // Vérification du participant(si il existe)
+    if (indice_participant < 0 || indice_participant >= nb_participants)
+    {
+        printf("Participant incorrect\n");
+        return;
+    }
+
+    // Vérification du concours(si il existe)
+    if (indice_concours < 0 || indice_concours >= nb_concours)
+    {
+        printf("Concours incorrect\n");
+        return;
+    }
+
+    // Vérfication si les point sont corrects
+    if (points <= 0)
+    {
+        printf("Points incorrects\n");
+        return;
+    }
+
+    // Si c'est la première fois que le participant marque des points dans le concours, on incrémente le nombre de concours actifs pour ce participant
+    if (les_participants[indice_participant].scores[indice_concours] == 0)
+    {
+        les_participants[indice_participant].nb_concours_actifs++;
+        les_concours[indice_concours].nb_participants_actifs++;
+    }
+
+    // Enregistrement des points
+    les_participants[indice_participant].scores[indice_concours] += points;
+
+    printf("Gain enregistre\n");
+}
+
+void afficher_score(int id_participant)
+{
+    int indice_participant = id_participant - 1;
+
+    // Vérification du participant(si il existe)
+    if (indice_participant < 0 || indice_participant >= nb_participants)
+    {
+        printf("Identifiant incorrect\n");
+        return;
+    }
+
+    // Affichage du nom et prénom du participant
+    printf("%s %s\n", les_participants[indice_participant].prenom, les_participants[indice_participant].nom);
+
+    if(les_participants[indice_participant].nb_concours_actifs == 0)
+    {
+        printf("Aucun gain\n");
+        return;
+    }
+
+    //parcours des concours pour afficher les scores non nuls(trier par ID croissant)
+    for (int concour = 0 ; concour < nb_concours; concour++)
+    {
+        if (les_participants[indice_participant].scores[concour] > 0)
+        {
+         int id_concours = concour + 1; // conversion de l'indice en ID
+         int score = les_participants[indice_participant].scores[concour];
+
+         //gestion du singulier/pluriel selon l'exemple du sujet ("1 point" vs "2 points")
+         if (score == 1)
+         {
+             printf("(%d) %s : %d point\n", id_concours, les_concours[concour].nom, score);
+         }
+         else
+         {
+             printf("(%d) %s : %d points\n", id_concours, les_concours[concour].nom, score);
+         }
+        }
+    }
+}
+
 int main()
 {
     char commande[50];
@@ -184,6 +283,20 @@ int main()
         case CMD_CONCOURS:
             afficher_concours();
             break;
+        case CMD_GAIN:
+        {
+            int id_participant, id_concours, points;
+            scanf("%d %d %d", &id_participant, &id_concours, &points);
+            enregistrer_gain(id_participant, id_concours, points);
+            break;
+        }
+        case CMD_SCORES:
+        {
+            int id_participant;
+            scanf("%d", &id_participant);
+            afficher_score(id_participant);
+            break;
+        }
         // Ajouter les cas pour les autres commandes
         default:
             printf("Command not recognized.\n");
