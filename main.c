@@ -16,6 +16,8 @@ typedef enum
     CMD_CONCOURS,
     CMD_GAIN,
     CMD_SCORES,
+    CMD_CLASSEMENT,
+    CMD_COMPARAISON,
     CMD_INCONNU,
 } TypeCommande;
 
@@ -36,6 +38,10 @@ TypeCommande identifier_commande(const char *commande)
         return CMD_GAIN;
     else if (strcmp(commande, "SCORES") == 0)
         return CMD_SCORES;
+    else if (strcmp(commande, "CLASSEMENT") == 0)
+        return CMD_CLASSEMENT;
+    else if (strcmp(commande, "COMPARAISON") == 0)
+        return CMD_COMPARAISON;
     else
         return CMD_INCONNU;
 }
@@ -55,6 +61,13 @@ typedef struct
     char nom[TAILLE_MAX];
     int nb_participants_actifs;
 } Concours;
+
+// structure pour représenter une ligne du classement
+typedef struct
+{
+    int id_participant;
+    int score;
+} LigneClassement;
 
 // Tableau principeaux
 Participant les_participants[MAX_PARTICIPANTS];
@@ -206,6 +219,7 @@ void enregistrer_gain(int id_participant, int id_concours, int points)
     printf("Gain enregistre\n");
 }
 
+// Fonction pour afficher le score d'un participant
 void afficher_score(int id_participant)
 {
     int indice_participant = id_participant - 1;
@@ -220,33 +234,201 @@ void afficher_score(int id_participant)
     // Affichage du nom et prénom du participant
     printf("%s %s\n", les_participants[indice_participant].prenom, les_participants[indice_participant].nom);
 
-    if(les_participants[indice_participant].nb_concours_actifs == 0)
+    if (les_participants[indice_participant].nb_concours_actifs == 0)
     {
         printf("Aucun gain\n");
         return;
     }
 
-    //parcours des concours pour afficher les scores non nuls(trier par ID croissant)
-    for (int concour = 0 ; concour < nb_concours; concour++)
+    // parcours des concours pour afficher les scores non nuls(trier par ID croissant)
+    for (int concour = 0; concour < nb_concours; concour++)
     {
         if (les_participants[indice_participant].scores[concour] > 0)
         {
-         int id_concours = concour + 1; // conversion de l'indice en ID
-         int score = les_participants[indice_participant].scores[concour];
+            int id_concours = concour + 1; // conversion de l'indice en ID
+            int score = les_participants[indice_participant].scores[concour];
 
-         //gestion du singulier/pluriel selon l'exemple du sujet ("1 point" vs "2 points")
-         if (score == 1)
-         {
-             printf("(%d) %s : %d point\n", id_concours, les_concours[concour].nom, score);
-         }
-         else
-         {
-             printf("(%d) %s : %d points\n", id_concours, les_concours[concour].nom, score);
-         }
+            // gestion du singulier/pluriel selon l'exemple du sujet ("1 point" vs "2 points")
+            if (score == 1)
+            {
+                printf("(%d) %s : %d point\n", id_concours, les_concours[concour].nom, score);
+            }
+            else
+            {
+                printf("(%d) %s : %d points\n", id_concours, les_concours[concour].nom, score);
+            }
         }
     }
 }
 
+// Fonction pour afficher le classement d'un concours
+void afficher_classement(int id_concours)
+{
+    int indice_concours = id_concours - 1;
+
+    // Vérification du concours(si il existe)
+    if (indice_concours < 0 || indice_concours >= nb_concours)
+    {
+        printf("Identifiant incorrect\n");
+        return;
+    }
+
+    // Vérification si le concours a des participants
+    if (les_concours[indice_concours].nb_participants_actifs == 0)
+    {
+        printf("%s\n", les_concours[indice_concours].nom);
+        printf("Aucun participant\n");
+        return;
+    }
+
+    // affichage du nom du concours
+    printf("%s\n", les_concours[indice_concours].nom);
+
+    // tableau temporaire pour stocker les participants ayant des points
+    LigneClassement classement[MAX_PARTICIPANTS];
+    int nb_actifs = 0;
+
+    for (int i = 0; i < nb_participants; i++)
+    {
+        if (les_participants[i].scores[indice_concours] > 0)
+        {
+            int score = les_participants[i].scores[indice_concours];
+            if (score > 0)
+            {
+                classement[nb_actifs].id_participant = i + 1; // conversion de l'indice en ID
+                classement[nb_actifs].score = score;
+                nb_actifs++;
+            }
+        }
+    }
+
+    // tri du tableau classement par score décroissant
+    for (int i = 0; i < nb_actifs - 1; i++)
+    {
+        for (int j = 0; j < nb_actifs - i - 1; j++)
+        {
+            if (classement[j].score < classement[j + 1].score ||
+                (classement[j].score == classement[j + 1].score &&
+                 classement[j].id_participant > classement[j + 1].id_participant))
+            {
+                LigneClassement temp = classement[j];
+                classement[j] = classement[j + 1];
+                classement[j + 1] = temp;
+            }
+        }
+    }
+
+    // affichage final avec gestion des ex aquo
+    int position_reelle = 1;
+
+    for (int i = 0; i < nb_actifs; i++)
+    {
+        int est_ex_aequo = 0;
+
+        // Un participant est ex-aequo avec le précédent si son score est égal à celui du précédent ou du suivant
+        if ((i > 0 && classement[i].score == classement[i - 1].score) ||
+            (i < nb_actifs - 1 && classement[i].score == classement[i + 1].score))
+        {
+            est_ex_aequo = 1;
+        }
+
+        int index_p = classement[i].id_participant - 1;
+        char *prenom = les_participants[index_p].prenom;
+        char *nom = les_participants[index_p].nom;
+        int score = classement[i].score;
+
+        char *mot_point = (score == 1) ? "point" : "points";
+
+        // Affichage
+        if (est_ex_aequo)
+        {
+            printf("%dex -> (%d) %s %s : %d %s\n", position_reelle, classement[i].id_participant, prenom, nom, score, mot_point);
+        }
+        else
+        {
+            printf("%d -> (%d) %s %s : %d %s\n", position_reelle, classement[i].id_participant, prenom, nom, score, mot_point);
+        }
+
+        // On incémente la position réelle uniquement si le participant suivant a un score strictement inférieur
+        if (i < nb_actifs - 1 && classement[i].score != classement[i + 1].score)
+        {
+            position_reelle = i + 2;
+        }
+    }
+}
+
+// Fonction pour comparer deux concours
+void comparer_concours(int id_concours1, int id_concours2)
+{
+    int indice_concours1 = id_concours1 - 1;
+    int indice_concours2 = id_concours2 - 1;
+
+    // verifier si les concours existe
+    if (indice_concours1 < 0 || indice_concours1 >= nb_concours ||
+        indice_concours2 < 0 || indice_concours2 >= nb_concours)
+    {
+        printf("Identifiant incorrect\n");
+        return;
+    }
+
+    // verifier s'il ya des participants avec des points dans les deux concours
+    int total_participants_avec_points = 0;
+    for (int i = 0; i < nb_participants; i++)
+    {
+        if (les_participants[i].scores[indice_concours1] > 0 || les_participants[i].scores[indice_concours2] > 0)
+        {
+            total_participants_avec_points++;
+        }
+    }
+
+    // affichage des nom du concours
+    printf("%s versus %s\n", les_concours[indice_concours2].nom, les_concours[indice_concours1].nom);
+
+    if (total_participants_avec_points == 0)
+    {
+        printf("Aucun participant\n");
+        return;
+    }
+
+    // verifier des concours incompatible
+    for (int i = 0; i < nb_participants; i++)
+    {
+        if (les_participants[i].scores[indice_concours1] == 0 && les_participants[i].scores[indice_concours2] > 0)
+        {
+            printf("Concours incompatibles\n");
+            return;
+        }
+    }
+
+    // parcours tout les participants
+    for (int i = 0; i < nb_participants; i++)
+    {
+        int score1 = les_participants[i].scores[indice_concours1];
+        int score2 = les_participants[i].scores[indice_concours2];
+
+        if (score1 > 0)
+        {
+            int id_p = i + 1;
+            char *prenom = les_participants[i].prenom;
+            char *nom = les_participants[i].nom;
+
+            // calcul des pourcentage
+            float pourcentage = ((float)score2 / (float)score1) * 100.0f;
+
+            // gestion du singulier/pluriel
+            char *mot_point1 = (score1 <= 1) ? "point" : "points";
+            char *mot_point2 = (score2 <= 1) ? "point" : "points";
+
+            printf("(%d) %s %s : %d %s/%d %s : %.2f%%\n",
+                   id_p, prenom, nom,
+                   score2, mot_point2,
+                   score1, mot_point1,
+                   pourcentage);
+        }
+    }
+}
+
+// Fonction principale du programme
 int main()
 {
     char commande[50];
@@ -295,6 +477,20 @@ int main()
             int id_participant;
             scanf("%d", &id_participant);
             afficher_score(id_participant);
+            break;
+        }
+        case CMD_CLASSEMENT:
+        {
+            int id_concours;
+            scanf("%d", &id_concours);
+            afficher_classement(id_concours);
+            break;
+        }
+        case CMD_COMPARAISON:
+        {
+            int id_concours1, id_concours2;
+            scanf("%d %d", &id_concours1, &id_concours2);
+            comparer_concours(id_concours1, id_concours2);
             break;
         }
         // Ajouter les cas pour les autres commandes
