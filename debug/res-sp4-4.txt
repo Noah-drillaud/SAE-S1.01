@@ -27,7 +27,7 @@ Gain enregistre
 Apprendre_une_langue
 1ex -> (3) Tom Thu : 3 points : +0 place
 1ex -> (4) Tom Jil : 3 points : +0 place
-3 -> (1) Tom Tom : 1 point : +0 place
+3 -> (1) Tom Tom : 1 point : -2 places
 Tom Jil
 (1) Apprendre_une_langue : 3 points
 Tom Thu
@@ -39,7 +39,7 @@ Tom Jil
 (3) Tom Thu : 1 concours
 (4) Tom Jil : 1 concours
 Creer_une_chasse_au_tresor
-Aucun participants
+Aucun participant
 Gain enregistre
 Gain enregistre
 Gain enregistre
@@ -135,9 +135,9 @@ Apprendre_une_langue
 1 -> (3) Tom Thu : 11 points : +1 place
 2 -> (4) Tom Jil : 10 points : -1 place
 3ex -> (1) Tom Tom : 7 points : +0 place
-3ex -> (2) Tom Thy : 7 points : +0 place
+3ex -> (2) Tom Thy : 7 points : -2 places
 Creer_une_chasse_au_tresor
 1 -> (2) Tom Thy : 9 points : +0 place
-2 -> (3) Tom Thu : 8 points : +0 place
-3 -> (4) Tom Jil : 6 points : +0 place
-4 -> (1) Tom Tom : 3 points : +0 place
+2 -> (3) Tom Thu : 8 points : -1 place
+3 -> (4) Tom Jil : 6 points : -2 places
+4 -> (1) Tom Tom : 3 points : -3 places

@@ -106,6 +106,11 @@ void inscrire_participant(const char *prenom, const char *nom)
     strcpy(les_participants[nb_participants].prenom, prenom);
     strcpy(les_participants[nb_participants].nom, nom);
     les_participants[nb_participants].nb_concours_actifs = 0;
+    for (int i = 0; i < nb_concours; i++)
+    {
+        les_participants[nb_participants].scores[i] = 0;
+        derniere_position[nb_participants][i] = les_concours[i].nb_participants_actifs + 1;
+    }
 
     nb_participants++;
 
@@ -153,6 +158,13 @@ void creer_concours(const char *nom_concours)
     // Ajouter le concours
     strcpy(les_concours[nb_concours].nom, nom_concours);
     les_concours[nb_concours].nb_participants_actifs = 0;
+
+    // Rang de départ 1 pour tous les participants déjà inscrits
+    for (int j = 0; j < nb_participants; j++)
+    {
+        les_participants[j].scores[nb_concours] = 0;
+        derniere_position[j][nb_concours] = 1;
+    }
 
     nb_concours++;
 
@@ -450,7 +462,7 @@ void afficher_bilan(int id_concours)
     // verifier si il y a des participant avec des point
     if (les_concours[indice_concours].nb_participants_actifs == 0)
     {
-        printf("Aucun participants\n");
+        printf("Aucun participant\n");
         return;
     }
 
@@ -505,12 +517,6 @@ void afficher_bilan(int id_concours)
         // calcul de la variation des place
         int position_actuelle = position_reelle;
         int ancienne_position = derniere_position[idx_p][indice_concours];
-
-        // si c'est le tout premier bilan, l'ancienne position est +0
-        if (ancienne_position == -1)
-        {
-            ancienne_position = position_actuelle;
-        }
 
         int diff = ancienne_position - position_actuelle;
 

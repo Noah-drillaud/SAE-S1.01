@@ -28,7 +28,7 @@ Apprendre_a_etre_responsable
 Aucun participant
 Gain enregistre
 Apprendre_a_etre_responsable
-Aucun participants
+Aucun participant
 Prendre_le_temps_de_cuisiner versus Prendre_le_temps_de_cuisiner
 (1) Jon Jon : 3 points/3 points : 100.00%
 (2) Jon Izy : 2 points/2 points : 100.00%
@@ -50,9 +50,9 @@ Apprendre_a_etre_responsable
 Gain enregistre
 Prendre_le_temps_de_cuisiner
 1 -> (1) Jon Jon : 9 points : +0 place
-2ex -> (2) Jon Izy : 2 points : +0 place
-2ex -> (4) Jon Ari : 2 points : +0 place
-4 -> (3) Jon Thi : 1 point : +0 place
+2ex -> (2) Jon Izy : 2 points : -1 place
+2ex -> (4) Jon Ari : 2 points : -1 place
+4 -> (3) Jon Thi : 1 point : -3 places
 Apprendre_a_etre_responsable
 1 -> (4) Jon Ari : 6 points
 Gain enregistre
@@ -125,9 +125,9 @@ Prendre_le_temps_de_cuisiner versus Prendre_le_temps_de_cuisiner
 (4) Jon Ari : 3 points/3 points : 100.00%
 Apprendre_a_etre_responsable
 1 -> (4) Jon Ari : 13 points : +0 place
-2 -> (3) Jon Thi : 7 points : +0 place
-3 -> (2) Jon Izy : 5 points : +0 place
-4 -> (1) Jon Jon : 2 points : +0 place
+2 -> (3) Jon Thi : 7 points : -1 place
+3 -> (2) Jon Izy : 5 points : -2 places
+4 -> (1) Jon Jon : 2 points : -3 places
 Prendre_le_temps_de_cuisiner
 1 -> (1) Jon Jon : 13 points : +0 place
 2 -> (2) Jon Izy : 10 points : +0 place
