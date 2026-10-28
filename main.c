@@ -18,6 +18,7 @@ typedef enum
     CMD_SCORES,
     CMD_CLASSEMENT,
     CMD_COMPARAISON,
+    CMD_BILAN,
     CMD_INCONNU,
 } TypeCommande;
 
@@ -42,6 +43,8 @@ TypeCommande identifier_commande(const char *commande)
         return CMD_CLASSEMENT;
     else if (strcmp(commande, "COMPARAISON") == 0)
         return CMD_COMPARAISON;
+    else if (strcmp(commande, "BILAN") == 0)
+        return CMD_BILAN;
     else
         return CMD_INCONNU;
 }
@@ -75,6 +78,7 @@ int nb_participants = 0; // compteur du nombre de participants
 
 Concours les_concours[MAX_CONCOURS];
 int nb_concours = 0; // compteur du nombre de concours
+int derniere_position[MAX_PARTICIPANTS][MAX_CONCOURS];
 
 // Fonction pour inscrire un participant
 void inscrire_participant(const char *prenom, const char *nom)
@@ -428,6 +432,138 @@ void comparer_concours(int id_concours1, int id_concours2)
     }
 }
 
+void afficher_bilan(int id_concours)
+{
+    int indice_concours = id_concours - 1;
+
+    // verifier que le concours existe
+    if (indice_concours < 0 || indice_concours >= nb_concours)
+    {
+        printf("Identifiant incorrect\n");
+        return;
+    }
+
+    // affiche le nom du concours
+    printf("%s\n", les_concours[indice_concours].nom);
+
+    // verifier si il y a des participant avec des point
+    if (les_concours[indice_concours].nb_participants_actifs == 0)
+    {
+        printf("Aucun participants\n");
+        return;
+    }
+
+    // remplissage du tableau temporaire pour le trie
+    LigneClassement classement[MAX_PARTICIPANTS];
+    int nb_actifs = 0;
+
+    for (int i = 0; i < nb_participants; i++)
+    {
+        int score = les_participants[i].scores[indice_concours];
+        if (score > 0)
+        {
+            classement[nb_actifs].id_participant = i + 1;
+            classement[nb_actifs].score = score;
+            nb_actifs++;
+        }
+    }
+
+    // tri (score décroissant et ID croissant)
+    for (int i = 0; i < nb_actifs - 1; i++)
+    {
+        for (int j = 0; j < nb_actifs - i - 1; j++)
+        {
+            if (classement[j].score < classement[j + 1].score ||
+                (classement[j].score == classement[j + 1].score && classement[j].id_participant > classement[j + 1].id_participant))
+            {
+                LigneClassement temp = classement[j];
+                classement[j] = classement[j + 1];
+                classement[j + 1] = temp;
+            }
+        }
+    }
+
+    // affichage du classement avec calcul du bien et perte de place
+    int position_reelle = 1;
+
+    for (int i = 0; i < nb_actifs; i++)
+    {
+        int est_ex_aequo = 0;
+        if ((i > 0 && classement[i].score == classement[i - 1].score) ||
+            (i < nb_actifs - 1 && classement[i].score == classement[i + 1].score))
+        {
+            est_ex_aequo = 1;
+        }
+
+        int idx_p = classement[i].id_participant - 1;
+        char *prenom = les_participants[idx_p].prenom;
+        char *nom = les_participants[idx_p].nom;
+        int score = classement[i].score;
+        char *mot_point = (score == 1) ? "point" : "points";
+
+        // calcul de la variation des place
+        int position_actuelle = position_reelle;
+        int ancienne_position = derniere_position[idx_p][indice_concours];
+
+        // si c'est le tout premier bilan, l'ancienne position est +0
+        if (ancienne_position == 0)
+        {
+            ancienne_position = position_actuelle;
+        }
+
+        int diff = ancienne_position - position_actuelle;
+
+        // memorisation de la position actuelle pour le prochain bilan
+        derniere_position[idx_p][indice_concours] = position_actuelle;
+
+        // formatage de l'affichage
+        char variation_str[30];
+        if (diff > 0)
+        {
+            if (diff == 1)
+            {
+                sprintf(variation_str, "+1 place");
+            }
+            else
+            {
+                sprintf(variation_str, "+%d places", diff);
+            }
+        }
+        else if (diff < 0)
+        {
+            if (diff == -1)
+            {
+                sprintf(variation_str, "-1 place");
+            }
+            else
+            {
+                sprintf(variation_str, "%d places", diff);
+            }
+        }
+        else
+        {
+            sprintf(variation_str, "+0 place");
+        }
+
+        //affichage de la ligne 
+        if (est_ex_aequo){
+            printf("%dex -> (%d) %s %s : %d %s : %s\n",
+            position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
+        }
+        else {
+            printf("%d -> (%d) %s %s : %d %s : %s\n",
+            position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
+        }
+
+
+        // On incémente la position réelle uniquement si le participant suivant a un score strictement inférieur
+        if (i < nb_actifs -1  && classement[i].score != classement[i + 1].score)
+        {
+            position_reelle = i + 2;
+        }
+    }
+}
+
 // Fonction principale du programme
 int main()
 {
@@ -491,6 +627,13 @@ int main()
             int id_concours1, id_concours2;
             scanf("%d %d", &id_concours1, &id_concours2);
             comparer_concours(id_concours1, id_concours2);
+            break;
+        }
+        case CMD_BILAN:
+        {
+            int id_concours;
+            scanf("%d", &id_concours);
+            afficher_bilan(id_concours);
             break;
         }
         // Ajouter les cas pour les autres commandes
