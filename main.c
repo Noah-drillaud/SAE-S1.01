@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define MAX_PARTICIPANTS 100
 #define MAX_CONCOURS 20
@@ -78,6 +77,8 @@ int nb_participants = 0; // compteur du nombre de participants
 
 Concours les_concours[MAX_CONCOURS];
 int nb_concours = 0; // compteur du nombre de concours
+
+// tableau pour stocker dernier position
 int derniere_position[MAX_PARTICIPANTS][MAX_CONCOURS];
 
 // Fonction pour inscrire un participant
@@ -506,7 +507,7 @@ void afficher_bilan(int id_concours)
         int ancienne_position = derniere_position[idx_p][indice_concours];
 
         // si c'est le tout premier bilan, l'ancienne position est +0
-        if (ancienne_position == 0)
+        if (ancienne_position == -1)
         {
             ancienne_position = position_actuelle;
         }
@@ -545,19 +546,20 @@ void afficher_bilan(int id_concours)
             sprintf(variation_str, "+0 place");
         }
 
-        //affichage de la ligne 
-        if (est_ex_aequo){
+        // affichage de la ligne
+        if (est_ex_aequo)
+        {
             printf("%dex -> (%d) %s %s : %d %s : %s\n",
-            position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
+                   position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
         }
-        else {
+        else
+        {
             printf("%d -> (%d) %s %s : %d %s : %s\n",
-            position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
+                   position_reelle, classement[i].id_participant, prenom, nom, score, mot_point, variation_str);
         }
-
 
         // On incémente la position réelle uniquement si le participant suivant a un score strictement inférieur
-        if (i < nb_actifs -1  && classement[i].score != classement[i + 1].score)
+        if (i < nb_actifs - 1 && classement[i].score != classement[i + 1].score)
         {
             position_reelle = i + 2;
         }
@@ -568,6 +570,14 @@ void afficher_bilan(int id_concours)
 int main()
 {
     char commande[50];
+
+    for (int i = 0; i < MAX_PARTICIPANTS; i++)
+    {
+        for (int j = 0; j < MAX_CONCOURS; j++)
+        {
+            derniere_position[i][j] = -1;
+        }
+    }
 
     // boucle principale du programme
     while (1)
